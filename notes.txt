@@ -1,0 +1,18 @@
+** Programme **
+Installation de serveur web (Apache) OK
+Installation de serveur de SGBD (Maria BD) 
+Création de users OK 
+Execution de commandes OK
+Copie de fichiers OK
+Docker
+Déploie sur EC2
+
+
+# sshpass permet d'inclure le password dans la requête
+# de connexion ssh
+# A executer sur la machine master
+sudo apt-get install -y sshpass 
+
+
+# remplacer xxx par le mot de passe
+--extra-vars "ansible_sudo_pass=xxx" 

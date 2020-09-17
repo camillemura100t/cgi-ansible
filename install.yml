@@ -1,0 +1,48 @@
+- 
+    name: Formation Ansible
+    hosts: targets
+    become: yes # become root
+    vars:
+        users: ['portos', 'athos', 'aramis']
+
+    tasks:
+        - name: Install Apache + Php
+          apt: name={{ item }} state=latest
+          loop: ['apache2', 'php', 'libapache2-mod-php']
+
+        - name: Start Apache
+          service: name=apache2 state=reloaded
+
+        - name: Create Group musketeers
+          group: name=musketeers state=present
+
+        # N.B: module random pour génération  de chaînes aléatoires
+        - name: Create user {{ item }}
+          user: name={{ item }} state=present groups=musketeers
+          loop: "{{ users }}"
+
+        - name: Create user folder in Apache document root
+          file: path=/var/www/html/{{ item }} state=directory
+          loop: "{{ users }}"
+
+        - name: Copy php files
+          copy: src=files/index.php dest=/var/www/html/{{ item }}/index.php owner={{ item }}
+          loop: "{{ users }}"
+          
+        # Il est possible des commandes systèmes par
+        # le module command / shell
+        - name: Touch a file
+          command: touch /tmp/cgi_temp_file
+
+        - name: Create Mariadb container
+          docker_container:
+            name: mariadb
+            image: mariadb
+            state: started
+            restart: yes
+            restart_policy: always
+            ports: 
+                - 0.0.0.0:3306:3306
+            env:
+                MYSQL_ROOT_PASSWORD: "azerty"
+                MYSQL_DATABASE: "test"
