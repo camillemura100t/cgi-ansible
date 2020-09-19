@@ -1,0 +1,23 @@
+- 
+    name: Try
+    hosts: aws
+    become: yes
+
+    roles:
+      - docker
+
+    tasks:
+        - name: Copy docker-compose.yml
+          copy: src=files/docker-compose.yml dest=~/docker-compose.yml
+
+        - name: Test if a container named mariadb is already running
+          command: /usr/local/bin/docker-compose ps
+          args:
+            chdir: ~/
+          register: cmd
+
+        - name: Run docker-compose on root home dir
+          command: /usr/local/bin/docker-compose up -d
+          args:
+            chdir: ~/
+          when: cmd.stdout.find('Up') == -1

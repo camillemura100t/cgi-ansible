@@ -1,6 +1,6 @@
 - 
-    name: Formation Ansible
-    hosts: targets
+    name: Formation Ansible Playbook
+    hosts: all # tous les groupes (définis dans le fichier hosts) sont ciblés 
     become: yes # become root
     vars:
         users: ['portos', 'athos', 'aramis']
@@ -8,7 +8,7 @@
     tasks:
         - name: Install Apache + Php
           apt: name={{ item }} state=latest
-          loop: ['apache2', 'php', 'libapache2-mod-php']
+          loop: ['apache2', 'php', 'libapache2-mod-php', 'php-mysql']
 
         - name: Start Apache
           service: name=apache2 state=reloaded
@@ -29,20 +29,26 @@
           copy: src=files/index.php dest=/var/www/html/{{ item }}/index.php owner={{ item }}
           loop: "{{ users }}"
           
-        # Il est possible des commandes systèmes par
-        # le module command / shell
-        - name: Touch a file
-          command: touch /tmp/cgi_temp_file
+        # Il est possible d'exécuter des commandes système par
+        # le module command ou par le module shell
+        # - name: Touch a file
+        #   command: touch /tmp/cgi_temp_file
 
-        - name: Create Mariadb container
-          docker_container:
-            name: mariadb
-            image: mariadb
-            state: started
-            restart: yes
-            restart_policy: always
-            ports: 
-                - 0.0.0.0:3306:3306
-            env:
-                MYSQL_ROOT_PASSWORD: "azerty"
-                MYSQL_DATABASE: "test"
+    # roles:
+    #     - container
+
+- 
+  name: Create MariaDb container on Local VMs
+  hosts: local_vm 
+  become: yes
+  roles:
+    - container
+    
+- 
+  name: Create MariaDb container on AWS EC2 instances
+  hosts: aws 
+  become: yes
+  roles:
+    - docker
+    - container-aws
+

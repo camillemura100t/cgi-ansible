@@ -1,0 +1,16 @@
+[local_vm]
+target1 ansible_host=192.168.0.27
+target2 ansible_host=192.168.0.28
+
+[local_vm:vars]
+ansible_ssh_private_key_file=~/.ssh/id_rsa
+
+
+[aws]
+ec2_1 
+
+[aws:vars]
+ansible_host=ec2-35-180-68-8.eu-west-3.compute.amazonaws.com
+ansible_user=ubuntu
+ansible_ssh_private_key_file=~/.ssh/formation.pem
+ansible_python_interpreter=/usr/bin/python3
